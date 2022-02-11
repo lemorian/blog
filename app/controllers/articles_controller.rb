@@ -1,11 +1,16 @@
 class ArticlesController < ApplicationController
+  before_action :set_article, only: [:edit, :update, :show, :destroy]
   def new
     @article = Article.new
   end
 
+  def set_article
+    @article = Article.find(params[:id])
+ end
+
   def create
     @article = Article.new(article_params)
-
+    @article.user = User.first
     respond_to do |format|
       if @article.save
         format.html { redirect_to article_url(@article), notice: "Article was successfully created." }
@@ -15,33 +20,27 @@ class ArticlesController < ApplicationController
     end
   end
 
-  def show
-    @article = Article.find(params[:id])
-  end
-
-  def edit
-    @article = Article.find(params[:id])
-  end
+ 
 
   def update
-    @article = Article.find(params[:id])
+
     if @article.update(article_params)
-      flash[:notice] = "Article was updated"
+      flash[:success]= "Article was updated"
       redirect_to article_path(@article)
     else
-      flash[:notice] = "Article was not updated"
+      flash[:success]= "Article was not updated"
       render "edit"
     end
   end
 
   def index
-    @articles = Article.all
+    @articles = Article.paginate(page: params[:page], per_page: 5)
   end
 
   def destroy
-    @article = Article.find(params[:id])
+    
     @article.destroy
-    flash[:notice] = "Article was deleted"
+    flash[:success]= "Article was deleted"
     redirect_to articles_path
   end
 
